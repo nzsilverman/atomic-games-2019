@@ -4,6 +4,44 @@ import sys
 import json
 import socket
 
+BOARD_WIDTH = 8
+BOARD_HEIGHT = 8
+
+def print_board(board):
+  for row in board:
+    print(row)
+    
+def adjacent_moves(player, board_in):
+  """ Returns a list of lists of adjacent moves that the player passed in could make. """
+  adj_moves = []
+
+  # Create a copy of the board_in so that we can mark spots that were 
+  # added, but not change the original. We only want to add to the adj_moves
+  # once, and adding a tuple (i.e. [2, 3]) does not play well with a set 
+  board = board_in
+
+  for row in range(0, BOARD_WIDTH):
+    for col in range(0, BOARD_HEIGHT):
+      if board[row][col] == 1 or board[row][col] == 2:
+        # Found a spot that there could potentially be adjacent moves from
+        if board[row][col] is not player:
+          # Iterate over elements in the square [row-1, row+1] and [col-1, col+1]
+          # The bounds are row+2 and col+2 because the range is not inclusive
+          # An element within this range is valid as long as it is in bounds, and
+          # is not yet occupied
+          for tmp_row in range(row-1, row+2):
+            for tmp_col in range(col-1, col+2):
+              if (tmp_row >= 0 and tmp_col >= 0 and
+                  tmp_row < BOARD_HEIGHT and tmp_col < BOARD_WIDTH):
+                # In bounds
+                if board[tmp_row][tmp_col] == 0:
+                  # Square is free, can add to adjacent moves set 
+                  adj_moves.append([tmp_row, tmp_col])
+                  board[row][col] = "F"
+
+  return adj_moves
+      
+
 def get_move(player, board):
   # TODO determine valid moves
   # TODO determine best move
