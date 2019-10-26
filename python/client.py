@@ -18,6 +18,8 @@ def adjacent_moves(player, board_in):
   # Create a copy of the board_in so that we can mark spots that were 
   # added, but not change the original. We only want to add to the adj_moves
   # once, and adding a tuple (i.e. [2, 3]) does not play well with a set 
+  # so this is a way around using a set data structure, and keeping the moves
+  # in an easy to work with format
   board = board_in
 
   for row in range(0, BOARD_WIDTH):
@@ -37,10 +39,52 @@ def adjacent_moves(player, board_in):
                 if board[tmp_row][tmp_col] == 0:
                   # Square is free, can add to adjacent moves set 
                   adj_moves.append([tmp_row, tmp_col])
-                  board[row][col] = "F"
+                  board[tmp_row][tmp_col] = "F"
 
   return adj_moves
       
+def diagonal_converted_tokens_helper(player, board, pos, val, row_pos, col_pos):
+  row = pos[0]
+  col = pos[1]
+  if (row < 0 or row >= BOARD_HEIGHT or col < 0 or col >= BOARD_HEIGHT):
+    # Out of bounds, return 0
+    return 0
+  elif ((row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1)
+     and board[row][col] == player):
+    # Edge spot on the board, and player can flip the tiles 
+    # They reached in getting to this spot
+    return val 
+  elif (row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1):
+    # Edge spot on the board, player cannot flip the tiles
+    # they reached to get her because the last tile is not theirs
+    return 0
+  elif (board[row][col] == 0 or board[row][col] == player):
+    # Reached as far as they can go, still not the edge of the board
+    return val 
+  elif board[row][col] != player:
+    # Need to keep recursing, since token in spot is not the player 
+    
+    # Figure out next spot to recurse to based on bool flags passed in
+    new_row = row+1 if row_pos else row-1
+    new_col = col+1 if col_pos else col-1
+    new_pos = [new_row, new_col]
+
+    # Recurse
+    return diagonal_converted_tokens_helper(player, board, new_pos, val+1, row_pos, col_pos) 
+
+def diagonal_converted_tokens(player, board, pos):
+  """ Evaluates and returns how many tokens will be converted when a player occupied
+      the position passed in. Evaluates for all four diagonal directions. """
+  row = pos[0]
+  col = pos[1]
+  # Need to evaluate how many tokens will be gained in each direction from a 
+  # specific move
+  up_right =    diagonal_converted_tokens_helper(player, board, [row-1, col+1], 0, False, True)
+  down_right =  diagonal_converted_tokens_helper(player, board, [row+1, col+1], 0, True, True)
+  up_left =     diagonal_converted_tokens_helper(player, board, [row-1, col-1], 0, False, False)
+  down_left =   diagonal_converted_tokens_helper(player, board, [row+1, col-1], 0, True, False)
+  return up_right + down_right + up_left + down_left
+  
 
 def get_move(player, board):
   # TODO determine valid moves
