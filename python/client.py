@@ -220,14 +220,38 @@ def EvalBoard(player, board):
       else:
         score += 1
 
-def miniMaxAttempt2(player, board, depth, maximizingPlayerg):
+def miniMaxAttempt2(player, board, depth, maximizingPlayer):
   if depth == 0 or isTerminalNode(player, board):
     return EvalBoard(player, board)
+  if maximizingPlayer:
+    best = 0 # start lowest possible
+    valid_moves = get_valid_moves(player, board)
+    for move in valid_moves:
+      tmp_player = 1 if player == 2 else 2
+      val = miniMaxAttempt2(tmp_player, move[2], depth - 1, False)
+      best = max(best, val)
+  else: 
+    best = BOARD_HEIGHT * BOARD_WIDTH # start highest possible
+    valid_moves = get_valid_moves(player, board)
+    for move in valid_moves:
+      tmp_player = 1 if player == 2 else 2
+      val = miniMaxAttempt2(tmp_player, move[2], depth - 1, True)
+      best = max(best, val)
+  return best
 
 def get_move(player, board):
   try:
     # min_max = minMax(player, board, False, [], 0)
-    min_max = minMaxIterative(player, board, True)
+    # min_max = minMaxIterative(player, board, True)
+    valid_moves = get_valid_moves(player, board)
+    best = 0
+    for move in valid_moves:
+      tmp_player = 1 if player == 2 else 1
+      # Since we are calling this on each from the top level search
+      # pass in false and the opposite player
+      score = miniMaxAttempt2(tmp_player, move[2], depth, False)
+      best = max(best, score)
+
   except Exception as e:
     print("error getting min Max: {}".format(e))
     valid_moves = get_valid_moves(player, board)
