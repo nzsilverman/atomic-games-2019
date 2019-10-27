@@ -162,7 +162,8 @@ def minMax(player, board, maximizingPlayer, moves_list, value):
     return minMax(next_player, best[2], True, moves_list, value + best[1])
 
 # moves_list is a list of the sequence of moves made when maxMin is used
-def minMaxRecursive(player, board, maximizingPlayer):
+# This only searches one branch, it is not really doing minMax yet
+def minMaxIterative(player, board, maximizingPlayer):
   """ Returns a list of moves to accomplish the max min pattern. element 0 is what to play next """
   valid_moves = get_valid_moves(player, board)
   moves_list = []
@@ -201,10 +202,32 @@ def get_best_each_round(valid_moves, maximizingPlayer):
         best_value = move[1]
   return best_entry
   
+# Determine if it is a terminal node
+def isTerminalNode(player, board):
+  valid_moves = get_valid_moves(player, board)
+  if valid_moves:
+    return False
+  return True
+
+def EvalBoard(player, board):
+  score = 0
+  for row in range(0, BOARD_HEIGHT):
+    for col in range(0, BOARD_WIDTH):
+      if (col == 0 or col == BOARD_WIDTH-1) and (row == 0 or row == BOARD_HEIGHT-1):
+        score += 4 # Value of corner 
+      elif (col == 0 or col == BOARD_WIDTH-1) or (row == 0 or row == BOARD_HEIGHT-1):
+        score += 2 # Side valuation 
+      else:
+        score += 1
+
+def miniMaxAttempt2(player, board, depth, maximizingPlayerg):
+  if depth == 0 or isTerminalNode(player, board):
+    return EvalBoard(player, board)
+
 def get_move(player, board):
   try:
     # min_max = minMax(player, board, False, [], 0)
-    min_max = minMaxRecursive(player, board, False)
+    min_max = minMaxIterative(player, board, True)
   except Exception as e:
     print("error getting min Max: {}".format(e))
     valid_moves = get_valid_moves(player, board)
