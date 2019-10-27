@@ -4,6 +4,7 @@ import sys
 import json
 import socket
 from enum import Enum
+import copy
 
 BOARD_WIDTH = 8
 BOARD_HEIGHT = 8
@@ -21,7 +22,8 @@ def adjacent_moves(player, board_in):
   # once, and adding a tuple (i.e. [2, 3]) does not play well with a set 
   # so this is a way around using a set data structure, and keeping the moves
   # in an easy to work with format
-  board = board_in
+  # board = list(board_in)
+  board = copy.deepcopy(board_in)
 
   for row in range(0, BOARD_WIDTH):
     for col in range(0, BOARD_HEIGHT):
@@ -62,15 +64,15 @@ def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
   if (row < 0 or row >= BOARD_HEIGHT or col < 0 or col >= BOARD_HEIGHT):
     # Out of bounds, return 0
     return 0
-  elif ((row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1)
-     and board[row][col] == player):
+  # elif ((row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1)
+     # and board[row][col] == player):
     # Edge spot on the board, and player can flip the tiles 
     # They reached in getting to this spot
-    return val 
-  elif (row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1):
+    # return val 
+  # elif (row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1):
     # Edge spot on the board, player cannot flip the tiles
     # they reached to get here because the last tile is not theirs
-    return 0
+    # return 0
   elif board[row][col] == 0:
     # Reached as far as they can go, not the edge of the board
     # Square is a zero, so cannot flip the tiles
@@ -111,7 +113,8 @@ def diagonal_converted_tokens(player, board, pos):
 
 def column_converted_tokens(player, board, pos):
   """ Evaluates and returns how many tokens will be converted when a player occupies 
-      the position that is passed in. Evaluates left and right directions. """
+      the position that is passed in. Evaluates up and down directions.
+      It is called column_converted because the column value is changed. """
   row = pos[0]
   col = pos[1]
   left =  count_helper(player, board, [row, col-1], 0, False, False, Dir.COLUMN)
@@ -120,14 +123,18 @@ def column_converted_tokens(player, board, pos):
 
 def row_converted_tokens(player, board, pos):
   """ Evaluates and returns how many tokens will be converted when a player occupies 
-      the position that is passed in. Evaluates up and down directions. """
+      the position that is passed in. Evaluates left and right directions. It
+      is called row_converted because the row value is changed. """
   row = pos[0]
   col = pos[1]
   up =  count_helper(player, board, [row-1, col], 0, False, False, Dir.ROW)
   down = count_helper(player, board, [row+1, col], 0, True, False, Dir.ROW)
   return up + down
 
-def get_move(player, board):
+def get_valid_moves_and_best(player, board):
+  """ Returns a tuple (best_move, [valid moves]). 
+      Best move is defined as the move that earns the most points
+      on this iteration. """
   all_moves = adjacent_moves(player, board)
   valid_moves = []
   best_move = None
@@ -149,7 +156,12 @@ def get_move(player, board):
   
   if best_move is None:
     print("Best move is none, error")
+    import pdb; pdb.set_trace()
     exit(1)
+  return (best_move, valid_moves)
+
+def get_move(player, board):
+  best_move, valid_moves = get_valid_moves_and_best(player, board)
   return best_move
 
 def prepare_response(move):
