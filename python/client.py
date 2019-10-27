@@ -214,11 +214,15 @@ def EvalBoard(player, board):
   for row in range(0, BOARD_HEIGHT):
     for col in range(0, BOARD_WIDTH):
       if (col == 0 or col == BOARD_WIDTH-1) and (row == 0 or row == BOARD_HEIGHT-1):
+        # corner square
         score += 4 # Value of corner 
       elif (col == 0 or col == BOARD_WIDTH-1) or (row == 0 or row == BOARD_HEIGHT-1):
+        # side square
         score += 2 # Side valuation 
       else:
         score += 1
+
+  return score
 
 def miniMaxAttempt2(player, board, depth, maximizingPlayer):
   if depth == 0 or isTerminalNode(player, board):
@@ -228,14 +232,15 @@ def miniMaxAttempt2(player, board, depth, maximizingPlayer):
     valid_moves = get_valid_moves(player, board)
     for move in valid_moves:
       tmp_player = 1 if player == 2 else 2
-      val = miniMaxAttempt2(tmp_player, move[2], depth - 1, False)
+      val = int(miniMaxAttempt2(tmp_player, move[2], depth - 1, False))
       best = max(best, val)
   else: 
-    best = BOARD_HEIGHT * BOARD_WIDTH # start highest possible
+    # minimizing player
+    best = int(BOARD_HEIGHT * BOARD_WIDTH) # start highest possible
     valid_moves = get_valid_moves(player, board)
     for move in valid_moves:
       tmp_player = 1 if player == 2 else 2
-      val = miniMaxAttempt2(tmp_player, move[2], depth - 1, True)
+      val = int(miniMaxAttempt2(tmp_player, move[2], depth - 1, True))
       best = max(best, val)
   return best
 
@@ -245,19 +250,22 @@ def get_move(player, board):
     # min_max = minMaxIterative(player, board, True)
     valid_moves = get_valid_moves(player, board)
     best = 0
+    depth = 3
+    best_move = []
     for move in valid_moves:
       tmp_player = 1 if player == 2 else 1
       # Since we are calling this on each from the top level search
       # pass in false and the opposite player
-      score = miniMaxAttempt2(tmp_player, move[2], depth, False)
-      best = max(best, score)
+      score = int(miniMaxAttempt2(tmp_player, move[2], depth, False))
+      if score > best:
+        best = score 
+        best_move = move[0]
 
   except Exception as e:
     print("error getting min Max: {}".format(e))
     valid_moves = get_valid_moves(player, board)
     return valid_moves[0][0]
-  print(min_max)
-  return min_max[0]
+  return best_move
 
 def prepare_response(move):
   response = '{}\n'.format(move).encode()
