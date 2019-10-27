@@ -14,7 +14,7 @@ class TestValidMoves(unittest.TestCase):
               [0, 0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0, 0]]
 
-    best_move, valid_moves = client.get_valid_moves_and_best(1, board)
+    valid_moves = client.get_valid_moves(1, board)
     expected_val = [[3, 2],
                     [3, 5],
                     [2, 5],
@@ -31,14 +31,14 @@ class TestValidMoves(unittest.TestCase):
               [2, 1, 1, 1, 2, 1, 1, 2],
               [2, 1, 1, 1, 1, 2, 1, 2],
               [2, 1, 2, 0, 1, 2, 2, 0]]
-    diag_count = client.diagonal_converted_tokens(1, board, [7,3])
+    diag_count = client.diagonal_converted_tokens(1, board, [7,3], False)
     self.assertEqual(diag_count, 0)
     # import pdb; pdb.set_trace()
-    col_count = client.column_converted_tokens(1, board, [7,3])
+    col_count = client.column_converted_tokens(1, board, [7,3], False)
     self.assertEqual(col_count, 1)
-    row_count = client.row_converted_tokens(1, board, [7,3])
+    row_count = client.row_converted_tokens(1, board, [7,3], False)
     self.assertEqual(row_count, 0)
-    best_move, valid_moves = client.get_valid_moves_and_best(1, board)
+    valid_moves = client.get_valid_moves(1, board)
     expected_val = [[7, 3],
                     [7, 7]]
     client.print_board(board)

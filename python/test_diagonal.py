@@ -13,7 +13,7 @@ class TestDiagonal(unittest.TestCase):
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [1, 1])
+    returned_val = client.diagonal_converted_tokens(1, board, [1, 1], False)
     expected_val = 0
     self.assertEqual(returned_val, expected_val)
 
@@ -27,7 +27,7 @@ class TestDiagonal(unittest.TestCase):
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [3, 2])
+    returned_val = client.diagonal_converted_tokens(1, board, [3, 2], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
@@ -41,7 +41,7 @@ class TestDiagonal(unittest.TestCase):
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [1, 4])
+    returned_val = client.diagonal_converted_tokens(1, board, [1, 4], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
@@ -55,7 +55,7 @@ class TestDiagonal(unittest.TestCase):
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [3, 4])
+    returned_val = client.diagonal_converted_tokens(1, board, [3, 4], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
@@ -69,7 +69,7 @@ class TestDiagonal(unittest.TestCase):
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [1, 2])
+    returned_val = client.diagonal_converted_tokens(1, board, [1, 2], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
@@ -83,7 +83,7 @@ class TestDiagonal(unittest.TestCase):
              [0, 0, 1, 0, 0, 0, 1, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [3, 4])
+    returned_val = client.diagonal_converted_tokens(1, board, [3, 4], False)
     expected_val = 4
     self.assertEqual(returned_val, expected_val)
 
@@ -96,7 +96,7 @@ class TestDiagonal(unittest.TestCase):
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [1, 1])
+    returned_val = client.diagonal_converted_tokens(1, board, [1, 1], False)
     expected_val = 0
     self.assertEqual(returned_val, expected_val)
 
@@ -109,7 +109,7 @@ class TestDiagonal(unittest.TestCase):
               [0, 0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [1, 1])
+    returned_val = client.diagonal_converted_tokens(1, board, [1, 1], False)
     expected_val = 0
     self.assertEqual(returned_val, expected_val)
   
@@ -122,7 +122,7 @@ class TestDiagonal(unittest.TestCase):
               [0, 0, 0, 0, 0, 0, 0, 0],
               [0, 0, 0, 0, 0, 0, 1, 0],
               [0, 0, 0, 0, 0, 0, 0, 2],]
-    returned_val = client.diagonal_converted_tokens(1, board, [6, 6])
+    returned_val = client.diagonal_converted_tokens(1, board, [6, 6], False)
     expected_val = 0
     self.assertEqual(returned_val, expected_val)
 
@@ -135,7 +135,7 @@ class TestDiagonal(unittest.TestCase):
               [0, 0, 0, 0, 0, 0, 0, 2],
               [0, 0, 0, 0, 0, 0, 1, 0],
               [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [6, 6])
+    returned_val = client.diagonal_converted_tokens(1, board, [6, 6], False)
     expected_val = 0
     self.assertEqual(returned_val, expected_val)
 
@@ -148,7 +148,7 @@ class TestDiagonal(unittest.TestCase):
               [0, 0, 0, 0, 0, 1, 0, 0],
               [0, 0, 0, 0, 0, 0, 2, 0],
               [0, 0, 0, 0, 0, 0, 0, 2],]
-    returned_val = client.diagonal_converted_tokens(1, board, [5, 5])
+    returned_val = client.diagonal_converted_tokens(1, board, [5, 5], False)
     expected_val = 0
     self.assertEqual(returned_val, expected_val)
 
@@ -161,10 +161,10 @@ class TestDiagonal(unittest.TestCase):
               [0, 0, 0, 0, 0, 1, 0, 0],
               [0, 0, 0, 0, 0, 0, 2, 0],
               [0, 0, 0, 0, 0, 0, 0, 1],]
-    returned_val = client.diagonal_converted_tokens(1, board, [2, 2])
+    returned_val = client.diagonal_converted_tokens(1, board, [2, 2], False)
     expected_val = 2
     self.assertEqual(returned_val, expected_val)
-    returned_val = client.diagonal_converted_tokens(1, board, [5, 5])
+    returned_val = client.diagonal_converted_tokens(1, board, [5, 5], False)
     expected_val = 2
     self.assertEqual(returned_val, expected_val)
 
@@ -177,19 +177,19 @@ class TestDiagonal(unittest.TestCase):
               [0, 0, 0, 0, 0, 0, 0, 1],
               [0, 0, 0, 0, 0, 0, 2, 0],
               [0, 0, 0, 0, 0, 1, 0, 0],]
-    returned_val = client.diagonal_converted_tokens(1, board, [0, 2])
+    returned_val = client.diagonal_converted_tokens(1, board, [0, 2], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.diagonal_converted_tokens(1, board, [2, 0])
+    returned_val = client.diagonal_converted_tokens(1, board, [2, 0], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.diagonal_converted_tokens(1, board, [5, 7])
+    returned_val = client.diagonal_converted_tokens(1, board, [5, 7], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.diagonal_converted_tokens(1, board, [7, 5])
+    returned_val = client.diagonal_converted_tokens(1, board, [7, 5], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
@@ -202,19 +202,19 @@ class TestDiagonal(unittest.TestCase):
               [0, 0, 2, 0, 0, 2, 0, 0],
               [0, 2, 0, 0, 0, 0, 2, 0],
               [1, 0, 0, 0, 0, 0, 0, 1],]
-    returned_val = client.diagonal_converted_tokens(1, board, [0, 0])
+    returned_val = client.diagonal_converted_tokens(1, board, [0, 0], False)
     expected_val = 6
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.diagonal_converted_tokens(1, board, [0, 7])
+    returned_val = client.diagonal_converted_tokens(1, board, [0, 7], False)
     expected_val = 6
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.diagonal_converted_tokens(1, board, [7, 0])
+    returned_val = client.diagonal_converted_tokens(1, board, [7, 0], False)
     expected_val = 6
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.diagonal_converted_tokens(1, board, [7, 7])
+    returned_val = client.diagonal_converted_tokens(1, board, [7, 7], False)
     expected_val = 6
     self.assertEqual(returned_val, expected_val)
 

@@ -58,7 +58,8 @@ class Dir(Enum):
 # row_pos = row positive, should row go to the right (+) or left (-)
 # col_pos = col positive, should col go up (+) or down (-)
 # dir_type = which direction to search? diagonal, column, row
-def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
+# flip_tokens = should flip tokens along search? ONLY CALL IF KNOWN TO END IN TOKEN_COUNT > 0
+def count_helper(player, board, pos, val, row_pos, col_pos, dir_type, flip_tokens):
   row = pos[0]
   col = pos[1]
   if (row < 0 or row >= BOARD_HEIGHT or col < 0 or col >= BOARD_HEIGHT):
@@ -85,74 +86,67 @@ def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
     elif dir_type == Dir.ROW:
       new_row = row+1 if row_pos else row-1
       new_pos = [new_row, col]
+    # flip token if we are told to do so.
+    # This will only be called when we know we will reach a succesful end
+    if flip_tokens:
+      board[row][col] = player
     # Recurse
-    return count_helper(player, board, new_pos, val+1, row_pos, col_pos, dir_type) 
+    return count_helper(player, board, new_pos, val+1, row_pos, col_pos, dir_type, flip_tokens) 
 
-def diagonal_converted_tokens(player, board, pos):
+def diagonal_converted_tokens(player, board, pos, flip_tokens):
   """ Evaluates and returns how many tokens will be converted when a player occupied
       the position passed in. Evaluates for all four diagonal directions. """
   row = pos[0]
   col = pos[1]
   # Need to evaluate how many tokens will be gained in each direction from a 
   # specific move
-  up_right =    count_helper(player, board, [row-1, col+1], 0, False, True, Dir.DIAGONAL)
-  down_right =  count_helper(player, board, [row+1, col+1], 0, True, True, Dir.DIAGONAL)
-  up_left =     count_helper(player, board, [row-1, col-1], 0, False, False, Dir.DIAGONAL)
-  down_left =   count_helper(player, board, [row+1, col-1], 0, True, False, Dir.DIAGONAL)
+  up_right =    count_helper(player, board, [row-1, col+1], 0, False, True, Dir.DIAGONAL, flip_tokens)
+  down_right =  count_helper(player, board, [row+1, col+1], 0, True, True, Dir.DIAGONAL, flip_tokens)
+  up_left =     count_helper(player, board, [row-1, col-1], 0, False, False, Dir.DIAGONAL, flip_tokens)
+  down_left =   count_helper(player, board, [row+1, col-1], 0, True, False, Dir.DIAGONAL, flip_tokens)
   return up_right + down_right + up_left + down_left
 
-def column_converted_tokens(player, board, pos):
+def column_converted_tokens(player, board, pos, flip_tokens):
   """ Evaluates and returns how many tokens will be converted when a player occupies 
       the position that is passed in. Evaluates up and down directions.
       It is called column_converted because the column value is changed. """
   row = pos[0]
   col = pos[1]
-  left =  count_helper(player, board, [row, col-1], 0, False, False, Dir.COLUMN)
-  right = count_helper(player, board, [row, col+1], 0, False, True, Dir.COLUMN)
+  left =  count_helper(player, board, [row, col-1], 0, False, False, Dir.COLUMN, flip_tokens)
+  right = count_helper(player, board, [row, col+1], 0, False, True, Dir.COLUMN, flip_tokens)
   return left + right
 
-def row_converted_tokens(player, board, pos):
+def row_converted_tokens(player, board, pos, flip_tokens):
   """ Evaluates and returns how many tokens will be converted when a player occupies 
       the position that is passed in. Evaluates left and right directions. It
       is called row_converted because the row value is changed. """
   row = pos[0]
   col = pos[1]
-  up =  count_helper(player, board, [row-1, col], 0, False, False, Dir.ROW)
-  down = count_helper(player, board, [row+1, col], 0, True, False, Dir.ROW)
+  up =  count_helper(player, board, [row-1, col], 0, False, False, Dir.ROW, flip_tokens)
+  down = count_helper(player, board, [row+1, col], 0, True, False, Dir.ROW, flip_tokens)
   return up + down
 
-def get_valid_moves_and_best(player, board):
-  """ Returns a tuple (best_move, [valid moves]). 
-      Best move is defined as the move that earns the most points
-      on this iteration. """
+def get_valid_moves(player, board):
+  """ Returns a list of tuples: [(valid_move, flipped_count, board_after), ...]. """
   all_moves = adjacent_moves(player, board)
   valid_moves = []
-  best_move = None
-  highest_flip_count = 0 # count of how many tiles flipped
   for move in all_moves:
+    # Copy the board so that we can update it as we search
+    board_copy = copy.deepcopy(board)
     count = 0
-    count += diagonal_converted_tokens(player, board, move)
-    count += row_converted_tokens(player, board, move)
-    count += column_converted_tokens(player, board, move)
+    count += diagonal_converted_tokens(player, board_copy, move, True)
+    count += row_converted_tokens(player, board_copy, move, True)
+    count += column_converted_tokens(player, board_copy, move, True)
 
-    if count > highest_flip_count and count > 0:
-      highest_flip_count = count 
-      print("Updating best move")
-      best_move = move 
-
-    # If a token was flipped, move is valid
     if count > 0:
-      valid_moves.append(move)
+      # Found a valid move
+      valid_moves.append((move, count, board_copy))
   
-  if best_move is None:
-    print("Best move is none, error")
-    import pdb; pdb.set_trace()
-    exit(1)
-  return (best_move, valid_moves)
+  return valid_moves
 
 def get_move(player, board):
-  best_move, valid_moves = get_valid_moves_and_best(player, board)
-  return best_move
+  valid_moves = get_valid_moves(player, board)
+  return valid_moves[0]
 
 def prepare_response(move):
   response = '{}\n'.format(move).encode()

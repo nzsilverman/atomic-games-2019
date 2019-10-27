@@ -14,7 +14,7 @@ class TestRow(unittest.TestCase):
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.row_converted_tokens(1, board, [1, 1])
+    returned_val = client.row_converted_tokens(1, board, [1, 1], False)
     expected_val = 0
     self.assertEqual(returned_val, expected_val)
 
@@ -27,11 +27,11 @@ class TestRow(unittest.TestCase):
              [0, 1, 0, 0, 0, 0, 0, 0],
              [0, 1, 0, 0, 0, 0, 0, 0],
              [0, 2, 0, 0, 0, 0, 0, 0],]
-    returned_val = client.row_converted_tokens(2, board, [0, 1])
+    returned_val = client.row_converted_tokens(2, board, [0, 1], False)
     expected_val = 6
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.row_converted_tokens(2, board, [7, 1])
+    returned_val = client.row_converted_tokens(2, board, [7, 1], False)
     expected_val = 6
     self.assertEqual(returned_val, expected_val)
 
@@ -45,19 +45,19 @@ class TestRow(unittest.TestCase):
              [0, 1, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
 
-    returned_val = client.row_converted_tokens(2, board, [0, 1])
+    returned_val = client.row_converted_tokens(2, board, [0, 1], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.row_converted_tokens(2, board, [2, 1])
+    returned_val = client.row_converted_tokens(2, board, [2, 1], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.row_converted_tokens(1, board, [4, 1])
+    returned_val = client.row_converted_tokens(1, board, [4, 1], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
-    returned_val = client.row_converted_tokens(1, board, [6, 1])
+    returned_val = client.row_converted_tokens(1, board, [6, 1], False)
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
@@ -71,7 +71,7 @@ class TestRow(unittest.TestCase):
              [0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0],]
 
-    returned_val = client.row_converted_tokens(1, board, [1, 1])
+    returned_val = client.row_converted_tokens(1, board, [1, 1], False)
     expected_val = 0
     self.assertEqual(returned_val, expected_val)
 
