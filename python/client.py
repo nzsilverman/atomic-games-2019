@@ -3,6 +3,7 @@
 import sys
 import json
 import socket
+from enum import Enum
 
 BOARD_WIDTH = 8
 BOARD_HEIGHT = 8
@@ -42,8 +43,13 @@ def adjacent_moves(player, board_in):
                   board[tmp_row][tmp_col] = "F"
 
   return adj_moves
+
+class Dir(Enum):
+  DIAGONAL = 1
+  COLUMN = 2
+  ROW = 3
       
-def diagonal_converted_tokens_helper(player, board, pos, val, row_pos, col_pos):
+def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
   row = pos[0]
   col = pos[1]
   if (row < 0 or row >= BOARD_HEIGHT or col < 0 or col >= BOARD_HEIGHT):
@@ -65,12 +71,21 @@ def diagonal_converted_tokens_helper(player, board, pos, val, row_pos, col_pos):
     # Need to keep recursing, since token in spot is not the player 
     
     # Figure out next spot to recurse to based on bool flags passed in
-    new_row = row+1 if row_pos else row-1
-    new_col = col+1 if col_pos else col-1
-    new_pos = [new_row, new_col]
+    if dir_type == Dir.DIAGONAL:
+      # Diagonal recursion, adjust both column and row
+      new_row = row+1 if row_pos else row-1
+      new_col = col+1 if col_pos else col-1
+      new_pos = [new_row, new_col]
+    elif dir_type == Dir.COLUMN:
+      new_col = col+1 if col_pos else col-1
+      new_pos = [row, new_col]
+    elif dir_type == Dir.ROW:
+      new_row = row+1 if row_pos else row-1
+      new_pos = [new_row, col]
+
 
     # Recurse
-    return diagonal_converted_tokens_helper(player, board, new_pos, val+1, row_pos, col_pos) 
+    return count_helper(player, board, new_pos, val+1, row_pos, col_pos, dir_type) 
 
 def diagonal_converted_tokens(player, board, pos):
   """ Evaluates and returns how many tokens will be converted when a player occupied
@@ -79,12 +94,29 @@ def diagonal_converted_tokens(player, board, pos):
   col = pos[1]
   # Need to evaluate how many tokens will be gained in each direction from a 
   # specific move
-  up_right =    diagonal_converted_tokens_helper(player, board, [row-1, col+1], 0, False, True)
-  down_right =  diagonal_converted_tokens_helper(player, board, [row+1, col+1], 0, True, True)
-  up_left =     diagonal_converted_tokens_helper(player, board, [row-1, col-1], 0, False, False)
-  down_left =   diagonal_converted_tokens_helper(player, board, [row+1, col-1], 0, True, False)
+  up_right =    count_helper(player, board, [row-1, col+1], 0, False, True, Dir.DIAGONAL)
+  down_right =  count_helper(player, board, [row+1, col+1], 0, True, True, Dir.DIAGONAL)
+  up_left =     count_helper(player, board, [row-1, col-1], 0, False, False, Dir.DIAGONAL)
+  down_left =   count_helper(player, board, [row+1, col-1], 0, True, False, Dir.DIAGONAL)
   return up_right + down_right + up_left + down_left
-  
+
+def column_converted_tokens(player, board, pos):
+  """ Evaluates and returns how many tokens will be converted when a player occupies 
+      the position that is passed in. Evaluates left and right directions. """
+  row = pos[0]
+  col = pos[1]
+  left =  count_helper(player, board, [row, col-1], 0, False, False, Dir.COLUMN)
+  right = count_helper(player, board, [row, col+1], 0, False, True, Dir.COLUMN)
+  return left + right
+
+def row_converted_tokens(player, board, pos):
+  """ Evaluates and returns how many tokens will be converted when a player occupies 
+      the position that is passed in. Evaluates up and down directions. """
+  row = pos[0]
+  col = pos[1]
+  up =  count_helper(player, board, [row-1, col], 0, False, False, Dir.ROW)
+  down = count_helper(player, board, [row+1, col], 0, True, False, Dir.ROW)
+  return up + down
 
 def get_move(player, board):
   # TODO determine valid moves
