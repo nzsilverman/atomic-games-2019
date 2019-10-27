@@ -27,7 +27,7 @@ def adjacent_moves(player, board_in):
     for col in range(0, BOARD_HEIGHT):
       if board[row][col] == 1 or board[row][col] == 2:
         # Found a spot that there could potentially be adjacent moves from
-        if board[row][col] is not player:
+        if board[row][col] != player:
           # Iterate over elements in the square [row-1, row+1] and [col-1, col+1]
           # The bounds are row+2 and col+2 because the range is not inclusive
           # An element within this range is valid as long as it is in bounds, and
@@ -49,6 +49,13 @@ class Dir(Enum):
   COLUMN = 2
   ROW = 3
       
+# player = 1 or 2
+# board = board passsed in
+# val = num tiles could flip 
+# pos = position in format [x, x]
+# row_pos = row positive, should row go to the right (+) or left (-)
+# col_pos = col positive, should col go up (+) or down (-)
+# dir_type = which direction to search? diagonal, column, row
 def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
   row = pos[0]
   col = pos[1]
@@ -62,9 +69,13 @@ def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
     return val 
   elif (row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1):
     # Edge spot on the board, player cannot flip the tiles
-    # they reached to get her because the last tile is not theirs
+    # they reached to get here because the last tile is not theirs
     return 0
-  elif (board[row][col] == 0 or board[row][col] == player):
+  elif board[row][col] == 0:
+    # Reached as far as they can go, not the edge of the board
+    # Square is a zero, so cannot flip the tiles
+    return 0
+  elif (board[row][col] == player):
     # Reached as far as they can go, still not the edge of the board
     return val 
   elif board[row][col] != player:
@@ -82,8 +93,6 @@ def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
     elif dir_type == Dir.ROW:
       new_row = row+1 if row_pos else row-1
       new_pos = [new_row, col]
-
-
     # Recurse
     return count_helper(player, board, new_pos, val+1, row_pos, col_pos, dir_type) 
 
@@ -119,9 +128,29 @@ def row_converted_tokens(player, board, pos):
   return up + down
 
 def get_move(player, board):
-  # TODO determine valid moves
-  # TODO determine best move
-  return [2, 3]
+  all_moves = adjacent_moves(player, board)
+  valid_moves = []
+  best_move = None
+  highest_flip_count = 0 # count of how many tiles flipped
+  for move in all_moves:
+    count = 0
+    count += diagonal_converted_tokens(player, board, move)
+    count += row_converted_tokens(player, board, move)
+    count += column_converted_tokens(player, board, move)
+
+    if count > highest_flip_count and count > 0:
+      highest_flip_count = count 
+      print("Updating best move")
+      best_move = move 
+
+    # If a token was flipped, move is valid
+    if count > 0:
+      valid_moves.append(move)
+  
+  if best_move is None:
+    print("Best move is none, error")
+    exit(1)
+  return best_move
 
 def prepare_response(move):
   response = '{}\n'.format(move).encode()
@@ -146,8 +175,16 @@ if __name__ == "__main__":
       player = json_data['player']
       print(player, maxTurnTime, board)
 
-      move = get_move(player, board)
-      response = prepare_response(move)
+      try:
+        move = get_move(player, board)
+      except:
+        print("Error getting move, exiting")
+        exit(0)
+      try:
+        response = prepare_response(move)
+      except:
+        print("Error preparing response, exiting")
+        exit(0)
       sock.sendall(response)
   finally:
     sock.close()

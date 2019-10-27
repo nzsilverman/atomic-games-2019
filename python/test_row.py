@@ -61,5 +61,19 @@ class TestRow(unittest.TestCase):
     expected_val = 1
     self.assertEqual(returned_val, expected_val)
 
+  def test_ends_in_0(self):
+    board = [[0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 1, 0, 0, 0, 0, 0, 0],
+             [0, 2, 0, 0, 0, 0, 0, 0],
+             [0, 2, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 0, 0],]
+
+    returned_val = client.row_converted_tokens(1, board, [1, 1])
+    expected_val = 0
+    self.assertEqual(returned_val, expected_val)
+
 if __name__ == '__main__':
   unittest.main()
