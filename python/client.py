@@ -144,9 +144,48 @@ def get_valid_moves(player, board):
   
   return valid_moves
 
-def get_move(player, board):
+# moves_list is a list of the sequence of moves made when maxMin is used
+def minMax(player, board, maximizingPlayer, moves_list, value):
+  """ Returns a list of moves to accomplish the max min pattern. element 0 is what to play next """
   valid_moves = get_valid_moves(player, board)
-  return valid_moves[0]
+  if not valid_moves:
+    return moves_list
+  if maximizingPlayer:
+    next_player = 1 if player == 2 else 2
+    best = get_best_each_round(valid_moves, maximizingPlayer) 
+    return minMax(next_player, best[2], False, moves_list.append(best[0]), value + best[1])
+  else:
+    next_player = 1 if player == 2 else 2
+    best = get_best_each_round(valid_moves, maximizingPlayer) 
+    return minMax(next_player, best[2], True, moves_list.append(best[0]), value + best[1])
+
+def get_best_each_round(valid_moves, maximizingPlayer):
+  best_entry = []
+  if maximizingPlayer:
+    best_value = 0 # 0 so the first we find that is greater replaces
+    for move in valid_moves:
+      # move[1] is the flipped count
+      if move[1] > best_value:
+        best_entry = move
+        best_value = move[1]
+  else:
+    best_value = 65 # 65 so the first that is less (which will be all since 64 is max) replaces
+    for move in valid_moves:
+      # move[1] is the flipped count
+      if move[1] < best_value:
+        best_entry = move
+        best_value = move[1]
+  return best_entry
+  
+def get_move(player, board):
+  try:
+    moves_list = []
+    min_max = minMax(player, board, False, moves_list, 0)
+  except Exception as e:
+    print("error getting min Max: {}".format(e))
+  print(min_max)
+  valid_moves = get_valid_moves(player, board)
+  return valid_moves[0][0]
 
 def prepare_response(move):
   response = '{}\n'.format(move).encode()
