@@ -153,11 +153,35 @@ def minMax(player, board, maximizingPlayer, moves_list, value):
   if maximizingPlayer:
     next_player = 1 if player == 2 else 2
     best = get_best_each_round(valid_moves, maximizingPlayer) 
-    return minMax(next_player, best[2], False, moves_list.append(best[0]), value + best[1])
+    moves_list.append(best[0])
+    return minMax(next_player, best[2], False, moves_list, value + best[1])
   else:
     next_player = 1 if player == 2 else 2
     best = get_best_each_round(valid_moves, maximizingPlayer) 
-    return minMax(next_player, best[2], True, moves_list.append(best[0]), value + best[1])
+    moves_list.append(best[0])
+    return minMax(next_player, best[2], True, moves_list, value + best[1])
+
+# moves_list is a list of the sequence of moves made when maxMin is used
+def minMaxRecursive(player, board, maximizingPlayer):
+  """ Returns a list of moves to accomplish the max min pattern. element 0 is what to play next """
+  valid_moves = get_valid_moves(player, board)
+  moves_list = []
+
+  while valid_moves:
+    if maximizingPlayer:
+      next_player = 1 if player == 2 else 2
+      best = get_best_each_round(valid_moves, maximizingPlayer) 
+      moves_list.append(best[0])
+      valid_moves = get_valid_moves(next_player, best[2])
+      maximizingPlayer = False
+    else:
+      next_player = 1 if player == 2 else 2
+      best = get_best_each_round(valid_moves, maximizingPlayer) 
+      moves_list.append(best[0])
+      valid_moves = get_valid_moves(next_player, best[2])
+      maximizingPlayer = True
+
+  return moves_list
 
 def get_best_each_round(valid_moves, maximizingPlayer):
   best_entry = []
@@ -179,13 +203,14 @@ def get_best_each_round(valid_moves, maximizingPlayer):
   
 def get_move(player, board):
   try:
-    moves_list = []
-    min_max = minMax(player, board, False, moves_list, 0)
+    # min_max = minMax(player, board, False, [], 0)
+    min_max = minMaxRecursive(player, board, False)
   except Exception as e:
     print("error getting min Max: {}".format(e))
+    valid_moves = get_valid_moves(player, board)
+    return valid_moves[0][0]
   print(min_max)
-  valid_moves = get_valid_moves(player, board)
-  return valid_moves[0][0]
+  return min_max[0]
 
 def prepare_response(move):
   response = '{}\n'.format(move).encode()
