@@ -64,25 +64,15 @@ def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
   if (row < 0 or row >= BOARD_HEIGHT or col < 0 or col >= BOARD_HEIGHT):
     # Out of bounds, return 0
     return 0
-  # elif ((row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1)
-     # and board[row][col] == player):
-    # Edge spot on the board, and player can flip the tiles 
-    # They reached in getting to this spot
-    # return val 
-  # elif (row == 0 or col == 0 or row == BOARD_HEIGHT-1 or col == BOARD_WIDTH-1):
-    # Edge spot on the board, player cannot flip the tiles
-    # they reached to get here because the last tile is not theirs
-    # return 0
   elif board[row][col] == 0:
-    # Reached as far as they can go, not the edge of the board
+    # Reached as far as they can go
     # Square is a zero, so cannot flip the tiles
     return 0
   elif (board[row][col] == player):
-    # Reached as far as they can go, still not the edge of the board
+    # Reached as far as they can go, can flip the tiles
     return val 
   elif board[row][col] != player:
     # Need to keep recursing, since token in spot is not the player 
-    
     # Figure out next spot to recurse to based on bool flags passed in
     if dir_type == Dir.DIAGONAL:
       # Diagonal recursion, adjust both column and row
