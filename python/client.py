@@ -6,6 +6,10 @@ import socket
 from enum import Enum
 import copy
 
+# Greedy implementation
+# This code returns the move that is locally optimal. This is not the best solution, but it is 
+# a good starting point. It works, and beats the random player sometiems
+
 BOARD_WIDTH = 8
 BOARD_HEIGHT = 8
 
@@ -59,6 +63,7 @@ class Dir(Enum):
 # col_pos = col positive, should col go up (+) or down (-)
 # dir_type = which direction to search? diagonal, column, row
 def count_helper(player, board, pos, val, row_pos, col_pos, dir_type):
+  """ This function recursively returns the number of spots that can be flipped in a given direction. """
   row = pos[0]
   col = pos[1]
   if (row < 0 or row >= BOARD_HEIGHT or col < 0 or col >= BOARD_HEIGHT):
@@ -144,13 +149,14 @@ def get_valid_moves_and_best(player, board):
     if count > 0:
       valid_moves.append(move)
   
+  # If best move is none, that is an error
   if best_move is None:
     print("Best move is none, error")
-    import pdb; pdb.set_trace()
     exit(1)
   return (best_move, valid_moves)
 
 def get_move(player, board):
+  """ Return the move to play. """
   best_move, valid_moves = get_valid_moves_and_best(player, board)
   return best_move
 
