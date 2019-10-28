@@ -1,5 +1,14 @@
 #!/usr/bin/python
 
+# Develop branch
+# This branch is an attempt at a miniMax implementation. In the repo
+# there are documents that describe how to implement miniMax. This 
+# code is an attempt at implementing that. It does not work yet. It does
+# not error out, but it is not as succesful as it should be. The issues 
+# are related to storing the best state throughout the life cycle of calling
+# miniMax recursively. This code could probably be adapted to work 
+# succesfully but it does not yet
+
 import sys
 import json
 import socket
@@ -59,6 +68,7 @@ class Dir(Enum):
 # col_pos = col positive, should col go up (+) or down (-)
 # dir_type = which direction to search? diagonal, column, row
 # flip_tokens = should flip tokens along search? ONLY CALL IF KNOWN TO END IN TOKEN_COUNT > 0
+# or if a copy of the board was passed in
 def count_helper(player, board, pos, val, row_pos, col_pos, dir_type, flip_tokens):
   row = pos[0]
   col = pos[1]
@@ -144,65 +154,7 @@ def get_valid_moves(player, board):
   
   return valid_moves
 
-# moves_list is a list of the sequence of moves made when maxMin is used
-def minMax(player, board, maximizingPlayer, moves_list, value):
-  """ Returns a list of moves to accomplish the max min pattern. element 0 is what to play next """
-  valid_moves = get_valid_moves(player, board)
-  if not valid_moves:
-    return moves_list
-  if maximizingPlayer:
-    next_player = 1 if player == 2 else 2
-    best = get_best_each_round(valid_moves, maximizingPlayer) 
-    moves_list.append(best[0])
-    return minMax(next_player, best[2], False, moves_list, value + best[1])
-  else:
-    next_player = 1 if player == 2 else 2
-    best = get_best_each_round(valid_moves, maximizingPlayer) 
-    moves_list.append(best[0])
-    return minMax(next_player, best[2], True, moves_list, value + best[1])
-
-# moves_list is a list of the sequence of moves made when maxMin is used
-# This only searches one branch, it is not really doing minMax yet
-def minMaxIterative(player, board, maximizingPlayer):
-  """ Returns a list of moves to accomplish the max min pattern. element 0 is what to play next """
-  valid_moves = get_valid_moves(player, board)
-  moves_list = []
-
-  while valid_moves:
-    if maximizingPlayer:
-      next_player = 1 if player == 2 else 2
-      best = get_best_each_round(valid_moves, maximizingPlayer) 
-      moves_list.append(best[0])
-      valid_moves = get_valid_moves(next_player, best[2])
-      maximizingPlayer = False
-    else:
-      next_player = 1 if player == 2 else 2
-      best = get_best_each_round(valid_moves, maximizingPlayer) 
-      moves_list.append(best[0])
-      valid_moves = get_valid_moves(next_player, best[2])
-      maximizingPlayer = True
-
-  return moves_list
-
-def get_best_each_round(valid_moves, maximizingPlayer):
-  best_entry = []
-  if maximizingPlayer:
-    best_value = 0 # 0 so the first we find that is greater replaces
-    for move in valid_moves:
-      # move[1] is the flipped count
-      if move[1] > best_value:
-        best_entry = move
-        best_value = move[1]
-  else:
-    best_value = 65 # 65 so the first that is less (which will be all since 64 is max) replaces
-    for move in valid_moves:
-      # move[1] is the flipped count
-      if move[1] < best_value:
-        best_entry = move
-        best_value = move[1]
-  return best_entry
-  
-# Determine if it is a terminal node
+# Determine if it is a terminal node, i.e. cannot move further
 def isTerminalNode(player, board):
   valid_moves = get_valid_moves(player, board)
   if valid_moves:
@@ -210,21 +162,24 @@ def isTerminalNode(player, board):
   return True
 
 def EvalBoard(player, board):
+  """ Evaulate the final board state, and assign point values based on differnt board positions. """
   score = 0
   for row in range(0, BOARD_HEIGHT):
     for col in range(0, BOARD_WIDTH):
-      if (col == 0 or col == BOARD_WIDTH-1) and (row == 0 or row == BOARD_HEIGHT-1):
-        # corner square
-        score += 4 # Value of corner 
-      elif (col == 0 or col == BOARD_WIDTH-1) or (row == 0 or row == BOARD_HEIGHT-1):
-        # side square
-        score += 2 # Side valuation 
-      else:
-        score += 1
+      if board[row][col] == player:
+        if (col == 0 or col == BOARD_WIDTH-1) and (row == 0 or row == BOARD_HEIGHT-1):
+          # corner square
+          score += 4 # Value of corner 
+        elif (col == 0 or col == BOARD_WIDTH-1) or (row == 0 or row == BOARD_HEIGHT-1):
+          # side square
+          score += 2 # Side valuation 
+        else:
+          score += 1
 
   return score
 
 def miniMaxAttempt2(player, board, depth, maximizingPlayer):
+  """ Attempt at implementing miniMax. This version was based on the whitepapers in the repo mainly. """
   if depth == 0 or isTerminalNode(player, board):
     return EvalBoard(player, board)
   if maximizingPlayer:
@@ -236,18 +191,24 @@ def miniMaxAttempt2(player, board, depth, maximizingPlayer):
       best = max(best, val)
   else: 
     # minimizing player
-    best = int(BOARD_HEIGHT * BOARD_WIDTH) # start highest possible
+    best = sys.maxsize # start highest possible
     valid_moves = get_valid_moves(player, board)
     for move in valid_moves:
       tmp_player = 1 if player == 2 else 2
       val = int(miniMaxAttempt2(tmp_player, move[2], depth - 1, True))
-      best = max(best, val)
+      best = min(best, val)
   return best
 
 def get_move(player, board):
+  """ Return the best move to play. """
   try:
     # min_max = minMax(player, board, False, [], 0)
     # min_max = minMaxIterative(player, board, True)
+
+    # Idea, get all valid moves, and then iterate through them and call miniMax 
+    # to try and find the one that returns the highest score. I think this is the root issue
+    # with this minimax implementation. I think it needs to be called on the current player with 
+    # True passed in
     valid_moves = get_valid_moves(player, board)
     best = 0
     depth = 3
@@ -257,14 +218,17 @@ def get_move(player, board):
       # Since we are calling this on each from the top level search
       # pass in false and the opposite player
       score = int(miniMaxAttempt2(tmp_player, move[2], depth, False))
-      if score > best:
+      if score >= best:
         best = score 
         best_move = move[0]
 
   except Exception as e:
+    # If miniMax is broken, instead of breaking use get_valid_moves and return the first, which 
+    # is just a random choice. It is not optimal, but prevents failure
     print("error getting min Max: {}".format(e))
     valid_moves = get_valid_moves(player, board)
     return valid_moves[0][0]
+  print("Best score: {}".format(best))
   return best_move
 
 def prepare_response(move):
